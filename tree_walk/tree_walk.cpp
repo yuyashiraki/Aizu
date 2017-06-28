@@ -10,7 +10,6 @@ class Node
   int p = NIL, l, r;
 };
 
-
 void preorder(vector<Node>& nodes, vector<int>& out, int cur)
 {
     if (cur == NIL) return;
