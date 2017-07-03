@@ -1,13 +1,16 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
 using namespace std;
 
 #define NIL -1
 
+vector<int> pre, ino;
+
 class Node
 {
   public:
-  int p = NIL, l = NIL, r = NIL, ino;
+  int p = NIL, l = NIL, r = NIL;
 };
 
 void postorder(vector<Node>& nodes, vector<int>& out, int cur)
@@ -21,61 +24,47 @@ void postorder(vector<Node>& nodes, vector<int>& out, int cur)
 void itr_print(vector<int>& out)
 {
     for (auto itr = out.begin(); itr != out.end(); ++itr) {
-        cout << " ";
+        if (itr != out.begin()) cout << " ";
         cout << *itr + 1;
     }
     cout << endl;
 }
 
-int find(vector<int>& ino, int cur)
+int crt(vector<Node>& nodes, vector<int>::iterator ino_b, vector<int>::iterator ino_e, vector<int>::iterator pre_cur)
 {
-    for (int i = 1; i <= ino.size(); i++) {
-        if (ino.at(i) == cur) return i;
+    if (ino_b == ino_e) return NIL;
+    vector<int>::iterator root;
+    while(pre_cur != ino.end()) {
+        if (ino_e == (root = find(ino_b, ino_e, *pre_cur++))) continue;
+        int l = crt(nodes, ino_b, root, pre_cur);
+        nodes.at(*root).l = l;
+        if (NIL != l) nodes.at(l).p = *root;
+        int r = crt(nodes, root + 1, ino_e, pre_cur);
+        nodes.at(*root).r = r;
+        if (NIL != r) nodes.at(r).p = *root;
+        return *root;
     }
+    cout << "error" << endl;
     return NIL;
-}
-
-void create_nodes(vector<Node>& nodes, vector<int>& pre)
-{
-    for (int i = 2; i < nodes.size(); i++) {
-        int bfr = i - 1;
-        for (int cur = bfr; cur != NIL; cur = nodes.at(pre.at(cur)).p) {
-//            cout << "i " << i << " cur " << cur << " bfr " << bfr << endl;
-            if (nodes.at(pre.at(i)).ino < nodes.at(pre.at(bfr)).ino) {
-                if (cur == bfr) {
-                    nodes.at(pre.at(bfr)).l = pre.at(i);
-                }
-                else
-                    nodes.at(pre.at(bfr)).r = pre.at(i);
-                nodes.at(pre.at(i)).p = pre.at(bfr);
-                break;
-            }
-            bfr = cur;
-        }
-    }
 }
 
 int main()
 {
-    int n, r, el;
+    int i, n, r, el;
     cin >> n;
-    vector<int> out, pre(n + 1);
-    out.push_back(NIL);
-    vector<Node> nodes(n + 1);
-    for (int i = 1; i <= n; i++) {
+    vector<Node> nodes(n);
+    vector<int> out;
+    for (i = 0; i < n; i++) {
         cin >> el;
-        if (i == 1) r = el;
-        pre.at(i) = el;
+        if (i == 0) r = el - 1;
+        pre.push_back(el - 1);
     }
-    for (int i = 1; i <= n; i++) {
+    for (i = 0; i < n; i++) {
         cin >> el;
-        nodes.at(el).ino = i;
+        ino.push_back(el - 1);
     }
-    create_nodes(nodes, pre);
-    int i = 1;
-//    for (auto itr = nodes.begin(); itr != nodes.end(); itr++) {
-//        cout << i++ << " " << itr->p << " " << itr->l << " " << itr->r << endl; 
-//    }
+
+    crt(nodes, ino.begin(), ino.end(), pre.begin());
     postorder(nodes, out, r);
     itr_print(out);
     return 0;
