@@ -11,34 +11,38 @@ class comp
     public:
     bool operator() (pair<int, int> a, pair<int, int> b)
     {
-        return a.second < b.second ? true : false;
+        return a.second < b.second ? false : true;
     }
 };
 
 void dijkstra(vector<vector<pair<int, int> > > way)
 {
     priority_queue<pair<int, int>, vector<pair<int, int> >, comp> PQ;
-    int d[way.size()];
-    bool on[way.size()];
+    pair<int, int> edge;
+    int d[way.size()];    // array to store the cost to respective nodes
+    bool on[way.size()];  // flags to indicate the minimum cost to its node has been calculated
+
+    // initialize
     for (int i = 0; i < way.size(); i++) {
         d[i] = 0;
-        on[i] = true;
+        on[i] = false;
     }
     PQ.push(make_pair(0, 0));
-    while (1) {
-        pair<int, int> edge = make_pair(0, INT_MAX);
-        while (1) {
-            cout << "DEBUG3" << endl;
-            edge = PQ.top();
-            PQ.pop();
-            if (!on[edge.first]) break;
-        }
-        if (INT_MAX == edge.second) break;
+
+    while (!PQ.empty()) {
+        edge = PQ.top();
+        PQ.pop();
+        // if flag is up, continue
+        if (on[edge.first]) continue;
         on[edge.first] = true;
         d[edge.first] = edge.second;
         for (auto itr = way.at(edge.first).begin(); itr != way.at(edge.first).end(); ++itr) {
-            if (!on[itr->first]) PQ.push(make_pair(itr->first, d[itr->first] + itr->second));
+            if (!on[itr->first]) PQ.push(make_pair(itr->first, d[edge.first] + itr->second));
         }
+    }
+    // print costs
+    for (int i = 0; i < way.size(); i++) {
+        cout << i << " " << d[i] << endl;
     }
 }
 
@@ -55,7 +59,6 @@ int main()
             way.at(u).push_back(make_pair(v, c));
         }
     }
-    cout << "DEBUG1" << endl;
     dijkstra(way);
     return 0;
 }
