@@ -33,10 +33,10 @@ int mcm(vector<int>& p)
 
 int main()
 {
-    int n, x, y;
+    int n;
     cin >> n;
     vector<int> p(n + 1);
-    for (int i = i; i < n + 1; i++) {
+    for (int i = 1; i < n + 1; i++) {
         cin >> p.at(i - 1) >> p.at(i);
     }
     cout << mcm(p) << endl;
