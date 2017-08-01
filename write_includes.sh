@@ -16,6 +16,10 @@ cat > $(dirname $0)/$1 <<EOF
 #include <climits>
 using namespace std;
 
+int main()
+{
+    return 0;
+}
 EOF
 
 exit 0
