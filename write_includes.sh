@@ -12,7 +12,9 @@ cat > $(dirname $0)/$1 <<EOF
 #include <utility>
 #include <queue>
 #include <stack>
+#include <map>
 #include <string>
+#include <cmath>
 #include <climits>
 using namespace std;
 
