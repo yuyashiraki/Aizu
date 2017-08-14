@@ -1,106 +1,116 @@
 #include <iostream>
-#include <cstdio>
-#include <algorithm>
 #include <vector>
-#include <utility>
-#include <queue>
-#include <stack>
 #include <string>
-#include <climits>
+#include <stdlib.h>
 using namespace std;
 
-#define MAX_N 500001
-
 class Node
-{
+{ 
     public:
-    int k, l = MAX_N, r = MAX_N;
+    Node *l, *r, *p;
+    int key;
+    Node()
+    {
+        l = r = p = NULL;
+    }
 };
-vector<Node> nodes(MAX_N);
-int p, n, r = 0;
+Node *root = NULL;
 
-void insert(int k)
+void insert(int key)
 {
-    nodes[p].k = k;
-    if (0 == p) { p++; return; }
-    int *cur = &r;
-    while (MAX_N != *cur) {
-        if (k < nodes[*cur].k) cur = &nodes[*cur].l;
-        else cur = &nodes[*cur].r;
+    Node **cur = &root, *node = new Node(), *p = NULL;
+    node->key = key;
+    while (NULL != *cur) {
+        node->p = p;
+        if (node->key < (*cur)->key) { 
+            cur = &((*cur)->l);
+        } else {
+            cur = &((*cur)->r);
+        }
+        p = *cur;
     }
-    *cur = p++;
-}
-
-int *find(int *cur, int k)
-{
-    if (*cur == MAX_N) return NULL;
-    if (nodes[*cur].k == k) return cur;
-    if (k < nodes[*cur].k) return find(&nodes[*cur].l, k);
-    return find(&nodes[*cur].r, k);
-}
-
-void delete_n(int* cur)
-{
-    if (!cur) {
-        return;
-    } else if (nodes[*cur].l == nodes[*cur].r) {
-        *cur = MAX_N;
-    } else if (nodes[*cur].l == MAX_N) {
-        int r = nodes[*cur].r;
-        nodes[*cur].r = MAX_N;
-        *cur = r;
-    } else if (nodes[*cur].r == MAX_N) {
-        int l = nodes[*cur].l;
-        nodes[*cur].l = MAX_N;
-        *cur = l;
-    } else {
-        nodes[*cur].k = nodes[nodes[*cur].r].k;
-        delete_n(&nodes[*cur].r);
-    }
+    *cur = node;
     return;
 }
 
-void preorder(int cur)
+Node *find(int key)
 {
-    if (MAX_N == cur) return;
-    cout << " " << nodes[cur].k;
-    preorder(nodes[cur].l);
-    preorder(nodes[cur].r);
+    Node *cur = root;
+    while (NULL != cur) {
+        if (cur->key == key) break;
+        if (key < cur->key) cur = cur->l;
+        else cur = cur->r;
+    }
+    return cur;
 }
 
-void inorder(int cur)
+Node *get_least(Node *r)
 {
-    if (MAX_N == cur) return;
-    inorder(nodes[cur].l);
-    cout << " " << nodes[cur].k;
-    inorder(nodes[cur].r);
+    if (r == NULL) return NULL;
+    while (r->l) r = r->l;
+    return r;
+}
+
+void delete_node(Node *z)
+{
+    /*
+     * y = node being deleted
+     * x = child node of y
+     */
+    Node *x, *y;
+    y = z->r == NULL || z->l == NULL ? z : get_least(z->r);
+
+    if (y->r == NULL && y->l == NULL) x = NULL;
+    else x = y->l ? y->l : y->r;
+
+    if (y->p == NULL) root = x;
+    else if (y->p->r == y) y->p->r = x;
+    else if (y->p->l == y) y->p->l = x;
+    else printf("ERROR: %d\n", __LINE__);
+
+    if (x) x->p = y->p;
+    z->key = y->key;
+    free(y);
+}
+
+void inorder(Node *cur)
+{
+    if (cur == NULL) return;
+    inorder(cur->l);
+    cout << " " << cur->key;
+    inorder(cur->r);
+}
+
+void preorder(Node *cur)
+{
+    if (cur == NULL) return;
+    cout << " " << cur->key;
+    preorder(cur->l);
+    preorder(cur->r);
 }
 
 int main()
 {
+    int n, key;
+    string command;
     cin >> n;
-    p = 0;
     while (n--) {
-        string command;
-        int k;
         cin >> command;
-        if (command == "insert") {
-            cin >> k;
-            insert(k);
-        } else if (command == "find") {
-            cin >> k;
-            int rt = r;
-            cout << (find (&rt, k) ? "yes" : "no") << endl;
-        } else if (command == "delete") {
-            cin >> k;
-            int rt = r;
-            delete_n(find(&rt, k));
-        } else {
-            inorder(r);
+        if ("insert" == command) {
+            cin >> key;
+            insert(key);
+        } else if ("find" == command) {
+            cin >> key;
+            cout << (find(key) ? "yes" : "no") << endl;
+        } else if ("delete" == command) {
+            cin >> key;
+            delete_node(find(key));
+        } else if ("print" == command) {
+            inorder(root);
             cout << endl;
-            preorder(r);
+            preorder(root);
             cout << endl;
-        }
+        } else printf("ERROR: %d\n", __LINE__);
     }
     return 0;
 }

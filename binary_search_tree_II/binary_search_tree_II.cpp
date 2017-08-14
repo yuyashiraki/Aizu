@@ -5,75 +5,94 @@
 #include <utility>
 #include <queue>
 #include <stack>
+#include <map>
 #include <string>
+#include <cmath>
 #include <climits>
 using namespace std;
 
-#define MAX_N 500001
-
 class Node
-{
+{ 
     public:
-    int k, l = MAX_N, r = MAX_N;
-};
-vector<Node> nodes(MAX_N);
-int p, n, r = 0;
-
-void insert(int k)
-{
-    nodes[p].k = k;
-    if (0 == p) { p++; return; }
-    int *cur = &r;
-    while (MAX_N != *cur) {
-        if (k < nodes[*cur].k) cur = &nodes[*cur].l;
-        else cur = &nodes[*cur].r;
+    Node *l, *r, *p;
+    int key;
+    Node()
+    {
+        l = r = p = NULL;
     }
-    *cur = p++;
+};
+Node *root = NULL;
+
+void insert(int key)
+{
+    Node **cur = &root, *node = new Node(), *p = NULL;
+    node->key = key;
+    while (NULL != *cur) {
+        node->p = p;
+        if (node->key < (*cur)->key) { 
+            cur = &((*cur)->l);
+        } else {
+            cur = &((*cur)->r);
+        }
+        p = *cur;
+    }
+    *cur = node;
+    return;
 }
 
-int find(int cur, int k)
+Node *find(int key)
 {
-    if (cur == MAX_N) return 0;
-    if (nodes[cur].k == k) return 1;
-    return k < nodes[cur].k ? find(nodes[cur].l, k) : find(nodes[cur].r, k);
+    Node *cur = root;
+    while (NULL != cur) {
+        if (cur->key == key) break;
+        if (key < cur->key) cur = cur->l;
+        else cur = cur->r;
+    }
+    return cur;
 }
 
-void preorder(int cur)
+Node *get_least(Node *r)
 {
-    if (MAX_N == cur) return;
-    cout << " " << nodes[cur].k;
-    preorder(nodes[cur].l);
-    preorder(nodes[cur].r);
+    if (r == NULL) return NULL;
+    while (r->l) r = r->l;
+    return r;
 }
 
-void inorder(int cur)
+void inorder(Node *cur)
 {
-    if (MAX_N == cur) return;
-    inorder(nodes[cur].l);
-    cout << " " << nodes[cur].k;
-    inorder(nodes[cur].r);
+    if (cur == NULL) return;
+    inorder(cur->l);
+    cout << " " << cur->key;
+    inorder(cur->r);
+}
+
+void preorder(Node *cur)
+{
+    if (cur == NULL) return;
+    cout << " " << cur->key;
+    preorder(cur->l);
+    preorder(cur->r);
 }
 
 int main()
 {
+    int n, key;
+    string command;
     cin >> n;
-    p = 0;
     while (n--) {
-        string command;
-        int k;
         cin >> command;
-        if (command == "insert") {
-            cin >> k;
-            insert(k);
-        } else if (command == "find") {
-            cin >> k;
-            cout << (find (r, k) ? "yes" : "no") << endl;
-        } else {
-            inorder(r);
+        if ("insert" == command) {
+            cin >> key;
+            insert(key);
+        } else if ("find" == command) {
+            cin >> key;
+            cout << (find(key) ? "yes" : "no") << endl;
+        } else if ("print" == command) {
+            inorder(root);
             cout << endl;
-            preorder(r);
+            preorder(root);
             cout << endl;
-        }
+        } else printf("ERROR: %d\n", __LINE__);
     }
     return 0;
 }
