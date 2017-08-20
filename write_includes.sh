@@ -7,6 +7,9 @@ fi
 cat > $(dirname $0)/$1 <<EOF
 #include <iostream>
 #include <cstdio>
+#include <cstdlib>
+#include <cmath>
+#include <climits>
 #include <algorithm>
 #include <vector>
 #include <utility>
@@ -14,8 +17,6 @@ cat > $(dirname $0)/$1 <<EOF
 #include <stack>
 #include <map>
 #include <string>
-#include <cmath>
-#include <climits>
 using namespace std;
 
 int main()
