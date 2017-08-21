@@ -18,6 +18,7 @@ using namespace std;
 #define N 3
 
 map<string, int> mp;
+queue<pair<string, int> > Q;
 
 vector<int> neighbor(int pos)
 {
@@ -26,30 +27,39 @@ vector<int> neighbor(int pos)
         rt.push_back(pos - 1);
     if (pos % N != N - 1)
         rt.push_back(pos + 1);
-    if (pos - N > 0)
+    if (pos - N >= 0)
         rt.push_back(pos - N);
     if (pos + N < N * N)
         rt.push_back(pos + N);
     return rt;
 }
 
-/*
- * TODO: 幅優先じゃなくて、深さ優先になってる！！
- */
-int bfs(string st)
+int bfs()
 {
-    if (mp.count(st))
-        return mp[st];
-    int pos = st.find("0"), rt;
-    string tmp;
-    vector<int> nb(neighbor(pos));
-    for (int i = 0; i < nb.size(); i++) {
-        tmp = st;
-        tmp[pos] = st[nb[i]]; tmp[nb[i]] = st[pos];
-        if ((rt =bfs(tmp)) != FLG)
-            return rt + 1;
+    string st, tmp;
+    int cnt, pos;
+    while (!Q.empty()) {
+        st = Q.front().first;
+        cnt = Q.front().second;
+        pos = st.find("0");
+        Q.pop();
+        if (mp.count(st)) {
+            if (mp[st] == FLG) {
+                continue;
+            } else if (mp[st] == GOAL) {
+                return cnt;
+            } else
+                printf("ERROR: %d\n", __LINE__);
+        }
+        mp[st] = FLG;
+        vector<int> nb(neighbor(pos));
+        for (int i = 0; i < nb.size(); i++) {
+            tmp = st;
+            tmp[pos] = st[nb[i]]; tmp[nb[i]] = st[pos];
+            Q.push(make_pair(tmp, cnt + 1));
+        }
     }
-    return FLG;
+    return INT_MIN;
 }
 
 int main()
@@ -60,7 +70,8 @@ int main()
         cin >> j;
         st += to_string(j);
     }
-    mp[st] = FLG; mp[gl] = GOAL;
-    cout << bfs(st) << endl;
+    mp[gl] = GOAL;
+    Q.push(make_pair(st, 0));
+    cout << bfs() << endl;
     return 0;
 }
