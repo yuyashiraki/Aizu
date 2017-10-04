@@ -15,6 +15,7 @@ using namespace std;
 
 #define FLG  INT_MIN
 #define GOAL 0
+#define LIMIT 45
 
 #define N 4
 

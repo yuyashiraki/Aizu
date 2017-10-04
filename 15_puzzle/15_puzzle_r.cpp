@@ -15,6 +15,7 @@ using namespace std;
 
 #define N 4
 #define N2 16
+#define LIMIT 45
 
 int MDT[N2][N2]; /* Mahattan Distance Table */
 
@@ -64,6 +65,45 @@ int getAllMD(Puzzle &p)
         sum += MDT[i][p.pc[i] - 1];
     }
     return sum;
+}
+
+
+Puzzle idstate;
+int limit;
+
+bool dfs(int prev)
+{
+    if (0 == idstate.MD) return true;
+    if (idstate.dpth + idstate.MD > limit) return false;
+    int x, y;
+    x = idstate.space % N;
+    y = idstate.space / N;
+    for (int i = 0; i < 4; i++) {
+        if (abs(prev - i) == 2) continue;
+        int tx = x + dx[i], ty = y + dy[i];
+        if (tx < 0 || tx >= N || ty < 0 || ty >= N) continue;
+        Puzzle tp = idstate;
+        idstate.space = tx + ty * N;
+        swap(idstate.pc[idstate.space], idstate.pc[tp.space]);
+        idstate.MD -= MDT[idstate.space][tp.pc[idstate.space] - 1];
+        idstate.MD += MDT[tp.space][idstate.pc[tp.space] - 1];
+        idstate.dpth++;
+        if (dfs(i)) return true;
+        idstate = tp;
+    }
+    return false;
+}
+
+int iterative_deepening(Puzzle &in)
+{
+    int rt;
+    idstate = in;
+    for (limit = in.MD; limit <= LIMIT; limit++) {
+        if (dfs(INT_MAX)) {
+            return idstate.dpth;
+        }
+    }
+    return -1;
 }
 
 int astar(Puzzle &in)
@@ -123,7 +163,7 @@ int main()
     }
     in.MD = getAllMD(in);
     in.dpth = 0;
-
-    cout << astar(in) << endl;
+    cout << iterative_deepening(in) << endl;
+//    cout << astar(in) << endl;
     return 0;
 }
