@@ -10,6 +10,7 @@ cat > $(dirname $0)/$1 <<EOF
 #include <cstdlib>
 #include <cmath>
 #include <climits>
+#include <cassert>
 #include <algorithm>
 #include <vector>
 #include <utility>
