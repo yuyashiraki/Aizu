@@ -16,7 +16,7 @@ Underlying idea:
     C[i][w] = max(C[i - 1][w - w[i]] + v[i], C[i - 1][w])
 """
 
-C = [[0] * (W + 1)] * (N + 1)
+C = [[0 for i in range(W + 1)] for j in range(N + 1)]
 def knapsack():
     for i in range(1, N + 1):
         for m in range(1, W + 1):
